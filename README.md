@@ -36,6 +36,7 @@ curl --location --request GET 'https://127.0.0.1:5000/cars'
     ],
    "status": 200,
   "invalidPage": false
+ }
 ```
 ---
 2.  **Get Cars (Page 10)**
