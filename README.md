@@ -1,192 +1,324 @@
-﻿
-﻿
+﻿## Car Identification REST API
+A simple REST API to identify Car(s) from the uploaded image
+## `/cars`
 
-# Flask API
+ - **Parameters**
 
-RESTful Api for pytorch models.
+| Param |Required  |
+|--|--|
+| page |No  |
+| search |No |
 
-## **URL** : `/`
+---
+**Examples**
 
- - **Method(s)** : `GET`
- - **Example**:
+ 1. **No parameters**
  
- ```
-curl  http://127.0.0.1:5000/
-```
-```json
-   {
-      "prediction": "/predict",
-      "list_of_cars": "/cars"
-   }
- ```
-
-## **URL** : `/predict`
-
-- **Method(s)** : `POST`
-
-|Parameters  |Required  |enum	     |
-|--          |--        |--      | 
-| image | True |nil |
-|model|True|(sfcars,indcars)
-
- - sfcars = stanford cars dataset model
- - indcars = indian cars model
-
-![updated](https://img.shields.io/badge/-updated-yellow?style=for-the-badge)    
- - Total cars
- - Supports detection of multiple cars in the image
+-  Request :
 ```bash
-curl -F 'image=@/Users/akshay/Desktop/hummer.jpg' -F 'model=sfcars'  http://127.0.0.1:5000/predict
+curl --location --request GET 'https://127.0.0.1:5000/cars'
 ```
+- Response  [200]:
+```json
+{
+  "cars": [
+    {
+      "id": 1,
+      "name": "AM General Hummer SUV 2000",
+      "image": "https://carimage.netlify.app/07684.jpg",
+      "fuel_type": "Diesel",
+      "fuel_tank_capacity": "159",
+      "seating_capacity": "2 to 4",
+      "body_type": "Convertible",
+      "transmission_type": "Automatic"
+    },
+    ...
+    ],
+   "status": 200,
+  "invalidPage": false
+```
+---
+2.  **Get Cars (Page 10)**
+- Request
+```bash
+curl --location --request GET 'https://127.0.0.1:5000/cars?page=10'
+```
+- Response [200]
+```json
+{
+    "cars": [
+        {
+            "id": 91,
+            "name": "Dodge Caliber Wagon 2012",
+            "image": "https://carimage.netlify.app/03460.jpg",
+            "fuel_type": "Gas",
+            "fuel_tank_capacity": "102",
+            "seating_capacity": "5",
+            "body_type": "Wagon",
+            "transmission_type": "Manual"
+        },
+	       ...
+        {
+            "id": 100,
+            "name": "Dodge Journey SUV 2012",
+            "image": "https://carimage.netlify.app/00349.jpg",
+            "fuel_type": "Gas",
+            "fuel_tank_capacity": "78",
+            "seating_capacity": "5",
+            "body_type": "SUV",
+            "transmission_type": "Automatic"
+        }
+    ],
+    "status": 200,
+    "invalidPage": false
+}
+```
+---
+3. **Get Cars (Invalid Page)**
+- Request
+```bash
+curl --location --request GET 'https://127.0.0.1:5000/cars?page=500'
+```
+- Response [400]
+```json
+{
+    "cars": [],
+    "status": 400,
+    "invalidPage": true
+}
+```
+---
+4. **Search Cars**
+- Request
+```bash
+curl --location --request GET 'https://127.0.0.1:5000/cars?search=Maruti&page=2'
+```
+- Response [200]
+```json
+{
+    "cars": [
+        {
+            "id": 213,
+            "name": "Maruti Suzuki S-Cross",
+            "image": "https://carimage.netlify.app/maruti_suzuki_s-cross.jpg",
+            "fuel_type": "Petrol",
+            "fuel_tank_capacity": "48",
+            "seating_capacity": "5",
+            "body_type": "SUV",
+            "transmission_type": "Automatic"
+        },
+	     ...
+        {
+            "id": 219,
+            "name": "Maruti Suzuki Wagon R",
+            "image": "https://carimage.netlify.app/maruti_suzuki_wagon_r.jpg",
+            "fuel_type": "Petrol",
+            "fuel_tank_capacity": "32",
+            "seating_capacity": "5",
+            "body_type": "Hatchback",
+            "transmission_type": "Automatic"
+        }
+    ],
+    "status": 200,
+    "invalidPage": false
+}
+```
+---
+5. **Search Cars (BAD REQUEST example)**
+- Request
+```bash
+curl --location --request GET 'https://127.0.0.1:5000/cars?search=Acuradbasdjbas'
+```
+- Response
+```json
+{
+    "cars": [],
+    "status": 400,
+    "invalidPage": true
+}
+```
+---
+## `/predict`
 
-<img src="https://i.pinimg.com/originals/b0/3a/5b/b03a5bb40d7fbc3b48fb07b18a02d7bf.jpg" width=400 height =250>
+- **Parameters**
 
+|  Param| Required |
+|--|--|
+|  image| Yes |
+
+---
+- **Examples**
+1.  **Single Car**
+- Request 
+```bash
+curl --location --request POST 'https://127.0.0.1:5000/predict' \
+--form 'image=@"/C:/Downloads/omni.jpg"'
+```
+- Response [200]
 ```json
 {
   "predictions": [
     [
       {
+        "confidence": 0.4241812825202942,
         "car_details": {
-          "id": 1,
-          "name": "AM General Hummer SUV 2000",
-          "image": "https://carimage.netlify.app/07684.jpg"
-        },
-        "confidence": 0.8825132846832275
+          "id": 212,
+          "name": "Maruti Suzuki Omni",
+          "image": "https://carimage.netlify.app/maruti_suzuki_omni.jpg",
+          "fuel_type": "Petrol",
+          "fuel_tank_capacity": "36",
+          "seating_capacity": "5",
+          "body_type": "Minivan",
+          "transmission_type": "Manual"
+        }
       },
       {
+        "confidence": 0.33098340034484863,
         "car_details": {
-          "id": 149,
-          "name": "Jeep Wrangler SUV 2012",
-          "image": "https://carimage.netlify.app/03089.jpg"
-        },
-        "confidence": 0.08587536215782166
+          "id": 135,
+          "name": "GMC Savana Van 2012",
+          "image": "https://carimage.netlify.app/02290.jpg",
+          "fuel_type": "Flex-fuel",
+          "fuel_tank_capacity": "117",
+          "seating_capacity": "12",
+          "body_type": "van",
+          "transmission_type": "Automatic"
+        }
       },
       {
+        "confidence": 0.22958144545555115,
         "car_details": {
-          "id": 125,
-          "name": "HUMMER H3T Crew Cab 2010",
-          "image": "https://carimage.netlify.app/04800.jpg"
-        },
-        "confidence": 0.02418730966746807
+          "id": 117,
+          "name": "Ford E-Series Wagon Van 2012",
+          "image": "https://carimage.netlify.app/05862.jpg",
+          "fuel_type": "Flex-fuel",
+          "fuel_tank_capacity": "132",
+          "seating_capacity": "15",
+          "body_type": "van",
+          "transmission_type": "Automatic"
+        }
       }
     ]
   ],
   "total_cars": 1,
   "status": 200
 }
-
 ```
-
-![new](https://img.shields.io/badge/-new-brightgreen?style=for-the-badge)    
-### Multiclass
+---
+2. **Multiple Cars**
+- Request
 ```bash
-curl -F 'image=@/Users/akshay/Desktop/a.jpg' -F 'model=indcars'  http://127.0.0.1:5000/predict
+curl --location --request POST 'https://127.0.0.1:5000/predict' \
+--form 'image=@"/C:/Downloads/oe.jpg"'
 ```
-<img src="https://www.cartoq.com/wp-content/uploads/2019/01/omni-eeco-featured.jpg" width=400 height =200>
-
+- Response[200]
 ```json
 {
   "predictions": [
     [
       {
+        "confidence": 0.5640007257461548,
         "car_details": {
-          "id": 66,
+          "id": 208,
           "name": "Maruti Suzuki Eeco",
-          "image": "https://carimage.netlify.app/maruti_suzuki_eeco.jpg"
-        },
-        "confidence": 0.802731454372406
+          "image": "https://carimage.netlify.app/maruti_suzuki_eeco.jpg",
+          "fuel_type": "CNG",
+          "fuel_tank_capacity": "65",
+          "seating_capacity": "5",
+          "body_type": "Minivan",
+          "transmission_type": "Manual"
+        }
       },
       {
+        "confidence": 0.1736801415681839,
         "car_details": {
-          "id": 18,
-          "name": "Chevrolet Tavera Neo 3",
-          "image": "https://carimage.netlify.app/chevrolet_tavera_neo_3.jpg"
-        },
-        "confidence": 0.07866261899471283
+          "id": 13,
+          "name": "Audi 100 Wagon 1994",
+          "image": "https://carimage.netlify.app/03435.jpg",
+          "fuel_type": "Gas",
+          "fuel_tank_capacity": "80",
+          "seating_capacity": "5",
+          "body_type": "Sedan",
+          "transmission_type": "Automatic"
+        }
       },
       {
+        "confidence": 0.14361479878425598,
         "car_details": {
-          "id": 77,
-          "name": "Maruti Suzuki Wagon R",
-          "image": "https://carimage.netlify.app/maruti_suzuki_wagon_r.jpg"
-        },
-        "confidence": 0.03110526129603386
+          "id": 285,
+          "name": "Volkswagen Golf Hatchback 1991",
+          "image": "https://carimage.netlify.app/03300.jpg",
+          "fuel_type": "Gas",
+          "fuel_tank_capacity": "55",
+          "seating_capacity": "5",
+          "body_type": "Hatchback",
+          "transmission_type": "Manual"
+        }
       }
     ],
     [
       {
+        "confidence": 0.4241812825202942,
         "car_details": {
-          "id": 70,
+          "id": 212,
           "name": "Maruti Suzuki Omni",
-          "image": "https://carimage.netlify.app/maruti_suzuki_omni.jpg"
-        },
-        "confidence": 0.31989696621894836
+          "image": "https://carimage.netlify.app/maruti_suzuki_omni.jpg",
+          "fuel_type": "Petrol",
+          "fuel_tank_capacity": "36",
+          "seating_capacity": "5",
+          "body_type": "Minivan",
+          "transmission_type": "Manual"
+        }
       },
       {
+        "confidence": 0.33098340034484863,
         "car_details": {
-          "id": 57,
-          "name": "Mahindra Verito",
-          "image": "https://carimage.netlify.app/mahindra_verito.jpg"
-        },
-        "confidence": 0.07384876906871796
+          "id": 135,
+          "name": "GMC Savana Van 2012",
+          "image": "https://carimage.netlify.app/02290.jpg",
+          "fuel_type": "Flex-fuel",
+          "fuel_tank_capacity": "117",
+          "seating_capacity": "12",
+          "body_type": "van",
+          "transmission_type": "Automatic"
+        }
       },
       {
+        "confidence": 0.22958144545555115,
         "car_details": {
-          "id": 102,
-          "name": "Tata Indigo eCS",
-          "image": "https://carimage.netlify.app/tata_indigo_ecs.jpg"
-        },
-        "confidence": 0.05521629378199577
+          "id": 117,
+          "name": "Ford E-Series Wagon Van 2012",
+          "image": "https://carimage.netlify.app/05862.jpg",
+          "fuel_type": "Flex-fuel",
+          "fuel_tank_capacity": "132",
+          "seating_capacity": "15",
+          "body_type": "van",
+          "transmission_type": "Automatic"
+        }
       }
     ]
   ],
   "total_cars": 2,
   "status": 200
 }
-
 ```
-
-
-## **URL** : `/cars`
-
-- **Method(s)** : `GET`
-- **Parameters**:
-
-| Parameters | Required | Enum |
-|--|--|--|
-| model |True  | (sfcars,indcars)
-|search|False|nil
-|page|False|nil
-
-- **Response** :
+---
+3. **Invalid File**
+- Request
 ```bash
-curl 'http://127.0.0.1:5000/cars?model=indcars&search=maruti&page=2'
+curl --location --request POST 'https://127.0.0.1:5000/predict' \
+--form 'image=@"/C:/Downloads/vim.pdf"'
 ```
-
-```json
+- Response[404]
+```json	
 {
-  "cars": [
-    {
-      "id": 70,
-      "name": "Maruti Suzuki Omni",
-      "image": "https://carimage.netlify.app/maruti_suzuki_omni.jpg"
-    },
-    {
-      "id": 71,
-      "name": "Maruti Suzuki S-Cross",
-      "image": "https://carimage.netlify.app/maruti_suzuki_s-cross.jpg"
-    },
-    {
-      "id": 72,
-      "name": "Maruti Suzuki SX4",
-      "image": "https://carimage.netlify.app/maruti_suzuki_sx4.jpg"
-    },
-  ],
-  "status": 200,
-  "invalidPage": false
+    "message": {
+        "error": "Invalid Filename",
+        "status": 404
+    }
 }
 ```
-
+  ---
 ## Download Models
 
 - Gdrive Folder Link : [DL Models](https://bit.ly/dlproject-cv)
